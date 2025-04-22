@@ -2,7 +2,6 @@ from algorithms_pca.matrix import Matrix, DimensionError
 
 
 def gauss_solver(A: 'Matrix', b: 'Matrix') -> list['Matrix']:
-
     if not isinstance(A, Matrix) or not isinstance(b, Matrix):
         raise DimensionError("A and b must be Matrix instances.")
     n, m = A.rows, A.cols
@@ -10,6 +9,7 @@ def gauss_solver(A: 'Matrix', b: 'Matrix') -> list['Matrix']:
         raise DimensionError("Incompatible dimensions for solving.")
 
     M = [list(map(float, A._data[i])) + [float(b._data[i][0])] for i in range(n)]
+
     eps = 1e-12
     row = 0
     pivot_cols: list[int] = []

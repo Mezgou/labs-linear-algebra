@@ -182,15 +182,28 @@ class Matrix:
         return self._lu_decomposition()
 
     def determinant(self):
-        P, L, U = self._lu_decomposition()
-        detP = 1
-        for i in range(P.rows):
-            if P._data[i][i] != 1:
-                detP = -detP
-        detU = 1
-        for i in range(U.rows):
-            detU *= U._data[i][i]
-        return detP * detU
+        if not self.is_square():
+            raise DimensionError("Determinant is defined only for square matrices.")
+
+        A = copy.deepcopy(self._data)
+        n = self.rows
+        det = 1
+        for i in range(n):
+            max_row = max(range(i, n), key=lambda r: abs(A[r][i]))
+            if abs(A[max_row][i]) < 1e-12:
+                return 0
+
+            if i != max_row:
+                A[i], A[max_row] = A[max_row], A[i]
+                det *= -1
+
+            det *= A[i][i]
+            for j in range(i + 1, n):
+                factor = A[j][i] / A[i][i]
+                for k in range(i, n):
+                    A[j][k] -= factor * A[i][k]
+
+        return det
 
     def inverse(self):
         if not self.is_square():
