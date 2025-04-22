@@ -20,7 +20,7 @@ def find_eigenvalues(C: 'Matrix', tol: float = 1e-6) -> list[float]:
         M = C - lmbd * I
         return M.determinant()
 
-    num_intervals = abs(max_lambda + min_lambda) + 100
+    num_intervals = int(abs(max_lambda + min_lambda) + 100)
     xs = [min_lambda + i * (max_lambda - min_lambda) / num_intervals for i in range(num_intervals + 1)]
 
     eigenvalues = []
