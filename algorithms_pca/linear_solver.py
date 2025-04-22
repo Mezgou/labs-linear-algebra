@@ -1,17 +1,8 @@
-import copy
-
 from algorithms_pca.matrix import Matrix, DimensionError
 
 
 def gauss_solver(A: 'Matrix', b: 'Matrix') -> list['Matrix']:
-    """
-    Solves the linear system A x = b using Gaussian elimination with partial pivoting (RREF).
 
-    :param A: Coefficient matrix (n x n)
-    :param b: RHS column matrix (n x 1)
-    :return: List of Matrix. Unique solution -> [x]; Infinite solutions -> [particular, basis...]
-    :raises ValueError: on inconsistent system.
-    """
     if not isinstance(A, Matrix) or not isinstance(b, Matrix):
         raise DimensionError("A and b must be Matrix instances.")
     n, m = A.rows, A.cols

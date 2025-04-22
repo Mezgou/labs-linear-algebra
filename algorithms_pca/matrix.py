@@ -17,17 +17,7 @@ class SingularMatrixError(MatrixError):
 
 
 class Matrix:
-    """
-    A basic Matrix class implementing common operations without external dependencies.
-    Supports element-wise and matrix operations, decomposition, inversion, and more.
-    """
-
     def __init__(self, data):
-        """
-        Initialize a Matrix from a list of lists.
-        :param data: non-empty list of lists of numbers, all rows equal length
-        :raises DimensionError: if data is invalid
-        """
         if not data or not all(isinstance(row, list) for row in data):
             raise DimensionError("Data must be a non-empty list of lists.")
         if len({len(row) for row in data}) != 1:
@@ -40,7 +30,6 @@ class Matrix:
         return f"Matrix({self._data})"
 
     def __eq__(self, other):
-        """Element-wise equality."""
         return isinstance(other, Matrix) and self._data == other._data
 
     def _check_same_dim(self, other):
@@ -48,7 +37,6 @@ class Matrix:
             raise DimensionError("Matrices must have the same dimensions.")
 
     def __add__(self, other):
-        """Element-wise addition."""
         if not isinstance(other, Matrix):
             raise DimensionError("Can only add another Matrix.")
         self._check_same_dim(other)
@@ -59,7 +47,6 @@ class Matrix:
         return Matrix(data)
 
     def __sub__(self, other):
-        """Element-wise subtraction."""
         if not isinstance(other, Matrix):
             raise DimensionError("Can only subtract another Matrix.")
         self._check_same_dim(other)
@@ -70,7 +57,6 @@ class Matrix:
         return Matrix(data)
 
     def __mul__(self, other):
-        """Element-wise or scalar multiplication."""
         if isinstance(other, Matrix):
             self._check_same_dim(other)
             data = [
@@ -85,11 +71,9 @@ class Matrix:
         raise DimensionError("Unsupported multiplication type.")
 
     def __rmul__(self, other):
-        """Scalar multiplication from left."""
         return self.__mul__(other)
 
     def matmul(self, other):
-        """Standard matrix multiplication (dot product)."""
         if not isinstance(other, Matrix):
             raise DimensionError("Can only matrix-multiply another Matrix.")
         if self.cols != other.rows:
@@ -106,7 +90,6 @@ class Matrix:
         return Matrix(result)
 
     def __truediv__(self, other):
-        """Element-wise or scalar division."""
         if isinstance(other, Matrix):
             self._check_same_dim(other)
             data = []
@@ -128,7 +111,6 @@ class Matrix:
         raise DimensionError("Unsupported division type.")
 
     def transpose(self):
-        """Return the transpose of the matrix."""
         data = [[self._data[j][i] for j in range(self.rows)]
                 for i in range(self.cols)]
         return Matrix(data)
@@ -141,13 +123,11 @@ class Matrix:
         return self.rows == self.cols
 
     def trace(self):
-        """Return trace of square matrix."""
         if not self.is_square():
             raise DimensionError("Trace defined only for square matrices.")
         return sum(self._data[i][i] for i in range(self.rows))
 
     def is_symmetric(self):
-        """Check if matrix equals its transpose."""
         if not self.is_square():
             return False
         return all(
@@ -156,7 +136,6 @@ class Matrix:
         )
 
     def submatrix(self, i, j):
-        """Return matrix with row i and column j removed."""
         if not (0 <= i < self.rows and 0 <= j < self.cols):
             raise IndexError("Index out of bounds.")
         data = [
@@ -166,14 +145,9 @@ class Matrix:
         return Matrix(data)
 
     def minor(self, i, j):
-        """Minor determinant of element (i,j)."""
         return self.submatrix(i, j).determinant()
 
     def _lu_decomposition(self):
-        """
-        LU decomposition with partial pivoting.
-        Returns P, L, U such that P * A = L * U.
-        """
         if not self.is_square():
             raise DimensionError("LU decomposition requires square matrix.")
         n = self.rows
@@ -205,11 +179,9 @@ class Matrix:
         return Matrix(P), Matrix(L), Matrix(U)
 
     def lu(self):
-        """Return P, L, U matrices."""
         return self._lu_decomposition()
 
     def determinant(self):
-        """Determinant via LU decomposition in O(n³)."""
         P, L, U = self._lu_decomposition()
         detP = 1
         for i in range(P.rows):
@@ -221,7 +193,6 @@ class Matrix:
         return detP * detU
 
     def inverse(self):
-        """Inverse via Gauss-Jordan elimination."""
         if not self.is_square():
             raise DimensionError("Inverse requires square matrix.")
         n = self.rows
@@ -245,7 +216,6 @@ class Matrix:
         return Matrix(inv_data)
 
     def rank(self):
-        """Rank via Gaussian elimination."""
         M = [row[:] for row in self._data]
         m, n = self.rows, self.cols
         rank = 0
@@ -270,7 +240,6 @@ class Matrix:
         return rank
 
     def solve(self, b):
-        """Solve Ax = b for x, where b is a column Matrix."""
         if not isinstance(b, Matrix):
             raise DimensionError("Right-hand side must be a Matrix.")
         if not self.is_square() or b.cols != 1 or b.rows != self.rows:
@@ -287,7 +256,6 @@ class Matrix:
         return Matrix([[xi] for xi in x])
 
     def sum(self, axis=None):
-        """Sum of elements: total, per-column (axis=0), or per-row (axis=1)."""
         if axis is None:
             return sum(sum(row) for row in self._data)
         if axis == 0:
@@ -297,7 +265,6 @@ class Matrix:
         raise DimensionError("Axis must be 0, 1, or None.")
 
     def mean(self, axis=None):
-        """Mean of elements: total, per-column, or per-row."""
         if axis is None:
             return self.sum() / (self.rows * self.cols)
         if axis in (0, 1):
