@@ -1,4 +1,11 @@
+import math
+import random
+
 from algorithms_pca.matrix import Matrix, DimensionError
+from algorithms_pca.pca import pca
+from algorithms_pca.statistics import covariance_matrix, center_data
+from algorithms_pca.eigen import find_eigenvalues
+from sklearn.datasets import load_iris
 
 
 def reconstruction_error(X_orig: Matrix, X_recon: Matrix) -> float:
@@ -54,3 +61,53 @@ def handle_missing_values(X: Matrix) -> Matrix:
             row.append(v if v == v else means[j])
         filled.append(row)
     return Matrix(filled)
+
+
+def add_noise_and_compare(X: Matrix, noise_level: float = 0.1):
+    X_centered = center_data(X)
+    C = covariance_matrix(X_centered)
+
+    eigenvalues = find_eigenvalues(C)
+    k = auto_select_k(eigenvalues)
+
+    X_proj_orig, ratio_orig = pca(X, k)
+
+    n, m = X.rows, X.cols
+    means = X.mean(axis=0)._data[0]
+    stds = []
+    for j in range(m):
+        col = [X._data[i][j] for i in range(n)]
+        var = sum((v - means[j])**2 for v in col) / n
+        stds.append(math.sqrt(var))
+
+    noisy_data = []
+    for i in range(n):
+        row = []
+        for j in range(m):
+            noise = random.gauss(0, stds[j] * noise_level)
+            row.append(X._data[i][j] + noise)
+        noisy_data.append(row)
+    X_noisy = Matrix(noisy_data)
+
+    X_proj_noisy, ratio_noisy = pca(X_noisy, k)
+
+    return {
+        'k': k,
+        'ratio_orig': ratio_orig,
+        'ratio_noisy': ratio_noisy,
+        'X_proj_orig': X_proj_orig,
+        'X_proj_noisy': X_proj_noisy,
+    }
+
+
+def apply_pca_to_dataset(dataset_name: str, k: int):
+    name = dataset_name.lower()
+    if name == 'iris':
+        data = load_iris()
+        X_np = data.data
+    else:
+        raise ValueError(f"Dataset '{dataset_name}' not supported.")
+
+    X = Matrix(X_np.tolist())
+    X_proj, explained_ratio = pca(X, k)
+    return X_proj, explained_ratio

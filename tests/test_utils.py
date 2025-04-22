@@ -1,7 +1,7 @@
 import unittest
 
 from algorithms_pca.matrix import Matrix
-from algorithms_pca.utils import reconstruction_error, auto_select_k, handle_missing_values
+from algorithms_pca.utils import reconstruction_error, auto_select_k, handle_missing_values, add_noise_and_compare, apply_pca_to_dataset
 
 
 class TestPCAExtensions(unittest.TestCase):
@@ -28,6 +28,27 @@ class TestPCAExtensions(unittest.TestCase):
         X = Matrix([[1.0, nan, 3.0], [nan, 2.0, nan], [4.0, nan, 6.0]])
         filled = handle_missing_values(X)
         self.assertEqual(filled, Matrix([[1.0, 2.0, 3.0], [2.5, 2.0, 4.5], [4.0, 2.0, 6.0]]))
+
+    def test_add_noise_and_compare_no_noise(self):
+        X = Matrix([[0, 1], [1, 0], [2, 2]])
+        res = add_noise_and_compare(X, noise_level=0.0)
+        self.assertEqual(res['k'], res['k'])  # k определено
+        self.assertAlmostEqual(res['ratio_orig'], res['ratio_noisy'], places=6)
+        self.assertEqual(res['X_proj_orig'], res['X_proj_noisy'])
+
+    def test_apply_pca_to_dataset_iris(self):
+        Xp, ratio = apply_pca_to_dataset('iris', 1)
+        self.assertIsInstance(Xp, Matrix)
+        self.assertEqual(Xp.cols, 1)
+        self.assertTrue(0 < ratio <= 1)
+
+    def test_invalid_dataset(self):
+        with self.assertRaises(ValueError):
+            apply_pca_to_dataset('unknown', 2)
+
+    def test_invalid_k(self):
+        with self.assertRaises(ValueError):
+            apply_pca_to_dataset('iris', 0)
 
 
 if __name__ == '__main__':
