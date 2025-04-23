@@ -64,7 +64,7 @@ def handle_missing_values(X: Matrix) -> Matrix:
 
 
 def add_noise_and_compare(X: Matrix, noise_level: float = 0.1):
-    X_centered = center_data(X)
+    X_centered, _ = center_data(X)
     C = covariance_matrix(X_centered)
 
     eigenvalues = find_eigenvalues(C)
