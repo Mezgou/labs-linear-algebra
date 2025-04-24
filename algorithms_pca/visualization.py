@@ -4,6 +4,7 @@ from algorithms_pca.matrix import Matrix, DimensionError
 from matplotlib.figure import Figure
 
 
+# Визуализация проекции в 2D
 def plot_pca_projection(X_proj: Matrix) -> Figure:
     if not isinstance(X_proj, Matrix):
         raise DimensionError("X_proj must be a Matrix instance.")

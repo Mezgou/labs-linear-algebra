@@ -11,7 +11,7 @@ class TestMatrixStats(unittest.TestCase):
             [4, 5, 6],
             [7, 8, 9]
         ])
-        X_centered = center_data(X)
+        X_centered, _ = center_data(X)
         expected_means = [0.0, 0.0, 0.0]
         col_means = X_centered.mean(axis=0)
         for j in range(3):
@@ -30,7 +30,7 @@ class TestMatrixStats(unittest.TestCase):
             [1.5, 1.6],
             [1.1, 0.9]
         ])
-        Xc = center_data(X)
+        Xc, _ = center_data(X)
         cov = covariance_matrix(Xc)
 
         self.assertAlmostEqual(cov._data[0][0], 0.61655556, places=5)

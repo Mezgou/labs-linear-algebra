@@ -2,8 +2,10 @@ from typing import List
 from algorithms_pca.matrix import Matrix
 
 
+# Поиск собственных значений методом бисекции по характеристическому многочлену
 def find_eigenvalues(C: Matrix, tol: float = 1e-6) -> List[float]:
     n = C.rows
+    # Оценка диапазона значений: Gershgorin
     r = max(
         sum(abs(C._data[i][j]) for j in range(n) if j != i) for i in range(n)
     )
@@ -13,9 +15,10 @@ def find_eigenvalues(C: Matrix, tol: float = 1e-6) -> List[float]:
     upper = d_max + r
 
     def det_diff(lmbd: float) -> float:
-        I = Matrix.identity(n)
-        return (C - I * lmbd).determinant()
+        # det(C - λI)
+        return (C - Matrix.identity(n) * lmbd).determinant()
 
+    # Разбиваем отрезок [lower, upper] на равные части и ищем смену знака
     intervals = 10000
     xs = [lower + i * (upper - lower) / intervals for i in range(intervals + 1)]
     roots: List[float] = []
@@ -34,6 +37,7 @@ def find_eigenvalues(C: Matrix, tol: float = 1e-6) -> List[float]:
                     left, fa = mid, fm
             roots.append((left + right) / 2)
 
+    # Убираем дубли и округляем
     return sorted({round(val, 5) for val in roots})
 
 
@@ -41,6 +45,7 @@ def find_eigenvectors(C: Matrix, eigenvalues: List[float]) -> List[Matrix]:
     n = C.rows
     I = Matrix.identity(n)
     eigenvectors = []
+    # Для каждого λ решаем (C - λI)x = 0
     for eigenvalue in eigenvalues:
         M = C - I * eigenvalue
         eigenvector = M.solve_homogeneous(tol=1e-12, round_decimals=6)
