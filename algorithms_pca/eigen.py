@@ -1,4 +1,6 @@
 from typing import List
+
+from algorithms_pca.linear_solver import gauss_solver
 from algorithms_pca.matrix import Matrix
 
 
@@ -48,6 +50,6 @@ def find_eigenvectors(C: Matrix, eigenvalues: List[float]) -> List[Matrix]:
     # Для каждого λ решаем (C - λI)x = 0
     for eigenvalue in eigenvalues:
         M = C - I * eigenvalue
-        eigenvector = M.solve_homogeneous(tol=1e-12, round_decimals=6)
-        eigenvectors.append(eigenvector)
+        eigenvector = gauss_solver(M, Matrix([[0.0] for _ in range(M.rows)]))
+        eigenvectors.append(eigenvector[1:])
     return eigenvectors

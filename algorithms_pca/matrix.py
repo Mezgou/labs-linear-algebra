@@ -324,36 +324,6 @@ class Matrix:
             for i in range(m): Q[i][j] = v[i]/norm_v
         return Matrix(Q), Matrix(R)
 
-    # Нахождение ненулевого решения однородной системы Mx=0
-    def solve_homogeneous(self, tol: float=1e-12, round_decimals: int=6) -> 'Matrix':
-        n, m = self.rows, self.cols
-        M = [row[:] for row in self._data]
-        pivot_row = 0
-        pivots = []
-        for col in range(m):
-            if pivot_row >= n: break
-            row = next((r for r in range(pivot_row, n) if abs(M[r][col])>tol), None)
-            if row is None: continue
-            M[pivot_row], M[row] = M[row], M[pivot_row]
-            factor = M[pivot_row][col]
-            M[pivot_row] = [val/factor for val in M[pivot_row]]
-            pivots.append(col)
-            for r in range(pivot_row+1, n):
-                factor = M[r][col]
-                M[r] = [M[r][c]-factor*M[pivot_row][c] for c in range(m)]
-            pivot_row += 1
-        free = [c for c in range(m) if c not in pivots]
-        x = [0.0]*m
-        if free: x[free[0]] = 1.0
-        else: x[0] = 1.0
-        for i in reversed(range(len(pivots))):
-            c = pivots[i]
-            s = sum(M[i][j]*x[j] for j in range(c+1, m))
-            x[c] = -s
-        # Нормируем вектор
-        norm = math.sqrt(sum(v*v for v in x))
-        return Matrix([[round(val/norm, round_decimals) if abs(val)>tol else 0.0] for val in x])
-
     # QR-алгоритм для собственных значений и векторов
     def qr_eigen(self, max_iter: int=1000, tol: float=1e-20) -> Tuple[List[float],'Matrix']:
         A_k = Matrix(copy.deepcopy(self._data))
