@@ -29,10 +29,10 @@ def auto_select_k(eigenvalues: list[float], threshold: float = 0.95) -> int:
         raise ValueError("threshold must be in (0, 1].")
     vals = sorted(eigenvalues, reverse=True)
     total = sum(vals)
-    cum = 0.0
+    temp = 0.0
     for idx, v in enumerate(vals, start=1):
-        cum += v
-        if cum / total >= threshold:
+        temp += v
+        if temp / total >= threshold:
             return idx
     return len(vals)
 
